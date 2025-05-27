@@ -1,11 +1,18 @@
 package br.com.camel.orquestrador.adapters.in;
 
+import br.com.camel.orquestrador.application.ports.in.ContratoServicePort;
 import org.apache.camel.builder.RouteBuilder;
-import org.apache.camel.model.rest.RestBindingMode;
 import org.springframework.stereotype.Component;
 
 @Component
 public class CamelRouter extends RouteBuilder {
+
+
+    private final ContratoServicePort contratoServicePort;
+
+    public CamelRouter(ContratoServicePort contratoServicePort) {
+        this.contratoServicePort = contratoServicePort;
+    }
 
     @Override
     public void configure() {
@@ -13,11 +20,11 @@ public class CamelRouter extends RouteBuilder {
 
         rest("/api")
                 .get("/contrato")
-                .produces("text/plain")
+                .produces("application/json")
                 .to("direct:processaContrato");
 
         from("direct:processaContrato")
                 .routeId("rotaGetContrato")
-                .setBody(simple("Requisição efetuada com sucesso"));
+                .setBody(exchange -> contratoServicePort.getContrato());
     }
 }
